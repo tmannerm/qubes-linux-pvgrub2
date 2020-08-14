@@ -38,15 +38,19 @@ BuildRequires:  /usr/lib64/crt1.o glibc-static
 BuildRequires:  /usr/lib/crt1.o glibc-static
 %endif
 BuildRequires:  autoconf automake autogen device-mapper-devel
-BuildRequires:	freetype-devel gettext-devel git
-BuildRequires:	texinfo
-BuildRequires:	dejavu-sans-fonts
-BuildRequires:	help2man
-BuildRequires:	xen-devel
+BuildRequires:  freetype-devel gettext-devel git
+BuildRequires:  texinfo
+%if 0%{?suse_version} == 1500
+BuildRequires:  dejavu-fonts
+%else
+BuildRequires:  dejavu-sans-fonts
+%endif
+BuildRequires:  help2man
+BuildRequires:  xen-devel
 
-Requires:	gettext which file
+Requires:       gettext which file
 
-ExcludeArch:	s390 s390x %{arm}
+ExcludeArch:    s390 s390x %{arm}
 
 %description
 The GRand Unified Bootloader (GRUB) is a highly configurable and customizable
@@ -87,47 +91,47 @@ cp %{SOURCE1} %{SOURCE2} grub-xen_pvh-i386/
 ./autogen.sh
 cd grub-xen-x86_64
 %configure							\
-	CFLAGS="$(echo $RPM_OPT_FLAGS | sed			\
-		-e 's/-O.//g'					\
-		-e 's/-fstack-protector\(-[[:alnum:]]\+\)*//g'	\
-		-e 's/-Wp,-D_FORTIFY_SOURCE=[[:digit:]]//g'	\
-		-e 's/--param=ssp-buffer-size=4//g'		\
-		-e 's/-mregparm=3/-mregparm=4/g'		\
-		-e 's/-fexceptions//g'				\
-		-e 's/-fasynchronous-unwind-tables//g' )"	\
-	TARGET_LDFLAGS=-static					\
-	--with-platform=xen					\
-	--with-grubdir=%{name}					\
-	--program-transform-name=s,grub,%{name},		\
-	--disable-grub-mount					\
-	--disable-werror
+    CFLAGS="$(echo $RPM_OPT_FLAGS | sed			\
+        -e 's/-O.//g'					\
+        -e 's/-fstack-protector\(-[[:alnum:]]\+\)*//g'	\
+        -e 's/-Wp,-D_FORTIFY_SOURCE=[[:digit:]]//g'	\
+        -e 's/--param=ssp-buffer-size=4//g'		\
+        -e 's/-mregparm=3/-mregparm=4/g'		\
+        -e 's/-fexceptions//g'				\
+        -e 's/-fasynchronous-unwind-tables//g' )"	\
+    TARGET_LDFLAGS=-static					\
+    --with-platform=xen					\
+    --with-grubdir=%{name}					\
+    --program-transform-name=s,grub,%{name},		\
+    --disable-grub-mount					\
+    --disable-werror
 make %{?_smp_mflags}
 tar cf memdisk.tar grub-xen.cfg
 ./grub-mkimage -O x86_64-xen -o grub-x86_64-xen.bin \
-		-c grub-bootstrap.cfg -m memdisk.tar -d grub-core grub-core/*.mod
+        -c grub-bootstrap.cfg -m memdisk.tar -d grub-core grub-core/*.mod
 cd ..
 cd grub-xen_pvh-i386
 %configure							\
-	CFLAGS="$(echo $RPM_OPT_FLAGS | sed			\
-		-e 's/-m64//g'					\
-		-e 's/-O.//g'					\
-		-e 's/-fstack-protector\(-[[:alnum:]]\+\)*//g'	\
-		-e 's/-Wp,-D_FORTIFY_SOURCE=[[:digit:]]//g'	\
-		-e 's/--param=ssp-buffer-size=4//g'		\
-		-e 's/-mregparm=3/-mregparm=4/g'		\
-		-e 's/-fexceptions//g'				\
-		-e 's/-fasynchronous-unwind-tables//g' )"	\
-	TARGET_LDFLAGS=-static					\
+    CFLAGS="$(echo $RPM_OPT_FLAGS | sed			\
+        -e 's/-m64//g'					\
+        -e 's/-O.//g'					\
+        -e 's/-fstack-protector\(-[[:alnum:]]\+\)*//g'	\
+        -e 's/-Wp,-D_FORTIFY_SOURCE=[[:digit:]]//g'	\
+        -e 's/--param=ssp-buffer-size=4//g'		\
+        -e 's/-mregparm=3/-mregparm=4/g'		\
+        -e 's/-fexceptions//g'				\
+        -e 's/-fasynchronous-unwind-tables//g' )"	\
+    TARGET_LDFLAGS=-static					\
     --target=i386-redhat-linux-gnu				\
-	--with-platform=xen_pvh	    				\
-	--with-grubdir=%{name}-pvh				\
-	--program-transform-name=s,grub,%{name}-pvh,		\
-	--disable-grub-mount					\
-	--disable-werror
+    --with-platform=xen_pvh	    				\
+    --with-grubdir=%{name}-pvh				\
+    --program-transform-name=s,grub,%{name}-pvh,		\
+    --disable-grub-mount					\
+    --disable-werror
 make %{?_smp_mflags}
 tar cf memdisk.tar grub-xen.cfg
 ./grub-mkimage -O i386-xen_pvh -o grub-i386-xen_pvh.bin \
-		-c grub-bootstrap.cfg -m memdisk.tar -d grub-core grub-core/*.mod
+        -c grub-bootstrap.cfg -m memdisk.tar -d grub-core grub-core/*.mod
 cd ..
 
 %install
